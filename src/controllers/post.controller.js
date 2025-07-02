@@ -32,7 +32,7 @@ exports.getAllPosts = async (req, res) => {
     } = req.query;
 
     // ----- Filter -----
-    const filter = {};
+    const filter = { deleted_at: null };
 
     if (title) {
       filter.title = { $regex: title, $options: "i" }; // tìm mờ, không phân biệt hoa thường
@@ -103,7 +103,7 @@ exports.getPostById = async (req, res) => {
       return res.status(400).json({ message: "ID không hợp lệ" });
     }
 
-    const post = await Post.findById(postId);
+    const post = await Post.findOne({ _id: postId, deleted_at: null });
     if (!post) {
       return res.status(404).json({ message: "Bài viết không tồn tại" });
     }
@@ -161,11 +161,17 @@ exports.deletePostById = async (req, res) => {
     if (!mongoose.Types.ObjectId.isValid(postId)) {
       return res.status(400).json({ message: "ID không hợp lệ" });
     }
-    const post = await Post.findByIdAndDelete(postId);
+    const post = await Post.findByIdAndUpdate(
+      postId,
+      { deleted_at: new Date() },
+      { new: true }
+    );
     if (!post) {
       return res.status(404).json({ message: "Bài viết không tồn tại" });
     }
-    res.status(204);
+    res.status(204).json({
+      message: true,
+    });
   } catch (error) {
     res.status(500).json({
       message: "Đã xảy ra lỗi khi xóa bài viết",

@@ -9,7 +9,9 @@ services:
     restart: unless-stopped
 
   my-app:
-    build: .
+    build: 
+      context: .
+      dockerfile: Dockerfile.dev
     container_name: my-app
     environment:
       - NODE_ENV=development
@@ -22,7 +24,7 @@ services:
     volumes:
       - .:/usr/src/app
       - /usr/src/app/node_modules
-    command: sh -c "if [ ! -d node_modules ] || [ -z \"$(ls -A node_modules 2>/dev/null)\" ]; then echo 'install node_modules...'; npm install; fi && npm run dev"
+    # command: sh -c "if [ ! -d node_modules ] || [ -z \"$(ls -A node_modules 2>/dev/null)\" ]; then echo 'install node_modules...'; npm install; fi && npm run dev"
     restart: unless-stopped
 
 volumes:
